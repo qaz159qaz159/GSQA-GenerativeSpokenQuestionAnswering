@@ -7,6 +7,7 @@ from transformers import AutoModelForSeq2SeqLM
 from transformers import AutoTokenizer
 from transformers import WhisperForConditionalGeneration
 from transformers import WhisperProcessor
+from tqdm import tqdm
 
 # load model and processor
 whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-large-v2")
@@ -14,9 +15,9 @@ whisper_model = WhisperForConditionalGeneration.from_pretrained(
     "openai/whisper-large-v2").to("cuda")
 whisper_model.config.forced_decoder_ids = None
 
-tokenizer = AutoTokenizer.from_pretrained("Oscarshih/long-t5-base-SQA-15ep")
+tokenizer = AutoTokenizer.from_pretrained("training_output/Hubert/checkpoint-328485")
 model = AutoModelForSeq2SeqLM.from_pretrained(
-    "Oscarshih/long-t5-base-SQA-15ep").to("cuda")
+    "training_output/Hubert/checkpoint-328485").to("cuda")
 dataset = load_dataset("voidful/NMSQA-CODE")
 
 
@@ -40,7 +41,7 @@ def process_and_generate(input_unit, cs):
 
 count = 0
 output = []
-for qa_item in dataset["dev"]:
+for qa_item in tqdm(dataset["dev"]):
     cs = hifigan_hubert_layer6_code100()
     ans_dict = {}
     try:
@@ -100,7 +101,7 @@ with open("hubert_dev_pred.json", "w") as f:
 
 count = 0
 output = []
-for qa_item in dataset["train"]:
+for qa_item in tqdm(dataset["train"]):
     if count == 10000:
         break
     cs = hifigan_hubert_layer6_code100()
